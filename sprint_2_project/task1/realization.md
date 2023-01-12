@@ -88,7 +88,7 @@ CREATE TABLE production.orderitems (
 ```
 - `id` - PRIMARY KEY (UNIQUE and NOT NULL)
 - `product_id` - уникальный идентификатор продукта. Изначально наложено лишь ограничение NOT NULL, но можно было бы добавить и FOREIGN KEY с ссылкой на `products.id`.
-- `order_id` - уникальный идентификатор заказа. Практически всегда встрчается несколько записей по каждому заказу - это потому что таблица хранит данные на уровне продуктов в заказе, который естесственно может быть несколько. Также имеет проверку на NOT NULL и вместе с product_id составляют UNIQUE комбинацию.
+- `order_id` - уникальный идентификатор заказа. Практически всегда встрчается несколько записей по каждому заказу - это потому что таблица хранит данные на уровне продуктов в заказе, который естественно может быть несколько. Также имеет проверку на NOT NULL и вместе с product_id составляют UNIQUE комбинацию.
 - `name` - имя продукта (NOT NULL)
 - `price` - цена продукта: NOT NULL, не может быть меньше 0 и имеет значение по умолчанию 0.
 - `discount` - скидка: повторяет те же проверки, что и цена плюс проверка на то что скидка не может быть больше самой цены.
@@ -252,27 +252,16 @@ ALTER TABLE analysis.dm_rfm_segments ADD CONSTRAINT dm_rfm_segments_user_id_fkey
 --Впишите сюда ваш ответ
 
 with user_stats as ( 
-
 		select 	 
-
 			user_id, 
-
 			MAX(order_ts) as most_recent_order, 
-
 			count(order_id) as total_num_orders, 
-
 			sum(payment) as total_revenue 
-
 		from  
-
 			production.orders 
-
 		where status = 4 -- considering only fulfilled orders 
-
 		group by user_id 
-
 )
-
 select 
 	*,
 	NTILE(5) OVER(order by most_recent_order desc) as recency,
